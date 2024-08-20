@@ -1,5 +1,27 @@
 #!/bin/bash
-# Default Java memory settings
+
+prg=$0
+
+# Check if symbolic link
+while [ -h "$prg" ] ; do
+    ls=$(ls -ld "$prg")
+    link=$(expr "$ls" : '.*-> \(.*\)$')
+    if expr "$link" : '.*/.*' > /dev/null; then
+        prg="$link"
+    else
+        prg="$(dirname "$prg")/$link"
+    fi
+done
+
+shell_path=$(dirname "$prg")
+absolute=$(echo "$shell_path" | grep "^/")
+
+if [ -z "$absolute" ]; then
+    export QUALIMAP_HOME="$(pwd)/$shell_path"
+else
+    export QUALIMAP_HOME="$shell_path"
+fi
+
 JAVA_OPTS="-Xms32m -Xmx1G"
 
 # Path to the JAR file and lib directory using QUALIMAP_HOME
