@@ -1,19 +1,24 @@
 #!/bin/bash
 # Default Java memory settings
 JAVA_OPTS="-Xms32m -Xmx1G"
-# Path to the JAR file and lib directory
-QUALIMAP_JAR="/code/qualimap_v2.3/qualimap.jar"
-LIB_DIR="/code/qualimap_v2.3/lib"
+
+# Path to the JAR file and lib directory using QUALIMAP_HOME
+QUALIMAP_JAR="$QUALIMAP_HOME/qualimap.jar"
+LIB_DIR="$QUALIMAP_HOME/lib"
+
 # Main class to run
 MAIN_CLASS="org.bioinfo.ngs.qc.qualimap.main.NgsSmartMain"
+
 # Check if QUALIMAP_JAR and LIB_DIR exist
 if [ ! -f "$QUALIMAP_JAR" ]; then
     echo "Error: $QUALIMAP_JAR not found!"
     exit 1
 fi
+
 if [ ! -d "$LIB_DIR" ]; then
     echo "Error: $LIB_DIR directory not found!"
     exit 1
 fi
+
 # Run the Java application with Java 17
 java $JAVA_OPTS -cp "$QUALIMAP_JAR:$LIB_DIR/*" $MAIN_CLASS "$@"
