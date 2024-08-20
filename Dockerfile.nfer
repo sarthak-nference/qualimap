@@ -1,0 +1,47 @@
+# Use the specified base image
+FROM hz-registry.nferx.com/ubuntu as worker
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Install required packages and dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    openjdk-17-jdk \
+    python3-pip \
+    python3-venv \
+    git \
+    build-essential \
+    libtool \
+    maven \
+    zlib1g-dev \
+    liblzma-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up Python environment and install packages
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install Flask pandas && \
+    pip cache purge && \
+    ln -s /usr/bin/python3 /usr/bin/python
+
+# Set the QUALIMAP_HOME environment variable
+ENV QUALIMAP_HOME=/opt/qual
+
+# Create QUALIMAP_HOME directory and copy Qualimap files
+RUN mkdir -p $QUALIMAP_HOME
+
+# Copy the JAR file, lib directory, and the qualimap script
+COPY qualimap.jar $QUALIMAP_HOME/qualimap.jar
+COPY lib $QUALIMAP_HOME/lib
+COPY qualimap $WORKDIR/qualimap
+
+# Set permissions for the qualimap script
+RUN chmod +x $WORKDIR/qualimap
+
+# Clean up unnecessary packages and files
+RUN apt-get remove -y git-lfs && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
